@@ -37,7 +37,7 @@ fun MainScreen(navHostController: NavHostController) {
         Button(
             modifier = Modifier.padding(20.dp),
             onClick = { navHostController.navigate(Screens.PeriodicWorkerScreen.screen) }) {
-            Text(text = "Periodic Work Request 3")
+            Text(text = "Periodic Work Request")
         }
     }
 }

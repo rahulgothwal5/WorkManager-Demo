@@ -7,6 +7,7 @@ import androidx.work.Configuration
 import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
+import com.example.workmanager_demo.WorkManagerApp.Companion.workerType
 import com.example.workmanager_demo.useCase.GetTweetsForTopicUseCase
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
@@ -27,6 +28,9 @@ class WorkManagerApp : Application(), Configuration.Provider {
     override val workManagerConfiguration: Configuration
         get() = newWorkManagerConfiguration()
 
+    companion object {
+        var workerType: WorkerType = WorkerType.PeriodicWorker
+    }
 }
 
 class CustomOneTimeWorkerFactory @Inject constructor(private val getTweetsForTopicUseCase: GetTweetsForTopicUseCase) :
@@ -35,8 +39,20 @@ class CustomOneTimeWorkerFactory @Inject constructor(private val getTweetsForTop
         appContext: Context,
         workerClassName: String,
         workerParameters: WorkerParameters,
-    ): ListenableWorker =
-//        OneTimeWorker(appContext, workerParameters, getTweetsForTopicUseCase)
-//        ExpeditedWorker(appContext, workerParameters, getTweetsForTopicUseCase)
-        PeriodicWorker(appContext, workerParameters)
+    ): ListenableWorker {
+        return when (workerType) {
+            is WorkerType.PeriodicWorker -> PeriodicWorker(appContext, workerParameters)
+            is WorkerType.OneTimeWorker -> OneTimeWorker(
+                appContext,
+                workerParameters,
+                getTweetsForTopicUseCase
+            )
+
+            is WorkerType.ExpeditedWorker -> ExpeditedWorker(
+                appContext,
+                workerParameters,
+                getTweetsForTopicUseCase
+            )
+        }
+    }
 }
